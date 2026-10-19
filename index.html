@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bouncing Ball Animation with Background</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            /* Background image aur uske upar dark tint */
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                        url('https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1600&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        canvas {
+            /* Canvas ko thoda transparent aur modern look diya hai */
+            background-color: rgba(17, 17, 17, 0.7);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info {
+            position: absolute;
+            top: 20px;
+            color: #fff;
+            text-align: center;
+            font-size: 14px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="info">Click anywhere on the canvas to give the ball a push!</div>
+    <canvas id="canvas" width="800" height="500"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Ball ki properties
+        let ball = {
+            x: canvas.width / 2,
+            y: 50,
+            radius: 25,
+            color: '#ff3366',
+            dx: 4,      // Horizontal speed
+            dy: 2,      // Vertical speed
+            gravity: 0.4, // Gravity ki taakat
+            bounce: 0.75, // Bounciness
+            friction: 0.99 // Air friction
+        };
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = ball.color;
+            ctx.fill();
+            ctx.closePath();
+
+            // Ball ki glow effect
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = ball.color;
+        }
+
+        function update() {
+            // Gravity effect
+            ball.dy += ball.gravity;
+
+            // Air friction
+            ball.dx *= ball.friction;
+
+            // Position update
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            // Zameen (Bottom) se bounce
+            if (ball.y + ball.radius > canvas.height) {
+                ball.y = canvas.height - ball.radius;
+                ball.dy = -ball.dy * ball.bounce;
+            }
+
+            // Chhat (Top) se bounce
+            if (ball.y - ball.radius < 0) {
+                ball.y = ball.radius;
+                ball.dy = -ball.dy * ball.bounce;
+            }
+
+            // Right wall se bounce
+            if (ball.x + ball.radius > canvas.width) {
+                ball.x = canvas.width - ball.radius;
+                ball.dx = -ball.dx * ball.bounce;
+            }
+
+            // Left wall se bounce
+            if (ball.x - ball.radius < 0) {
+                ball.x = ball.radius;
+                ball.dx = -ball.dx * ball.bounce;
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBall();
+            update();
+            requestAnimationFrame(animate);
+        }
+
+        // Mouse click par ball ko push dena
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            ball.x = mouseX;
+            ball.y = mouseY;
+            ball.dx = (Math.random() - 0.5) * 12;
+            ball.dy = (Math.random() - 0.5) * 10;
+        });
+
+        // Animation start karein
+        animate();
+    </script>
+
+</body>
+</html>
